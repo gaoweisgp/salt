@@ -105,4 +105,9 @@ def show_pillar(minion='*', **kwargs):
         pillarenv=pillarenv)
 
     compiled_pillar = pillar.compile_pillar()
+
+    # needed because pillar compilation clobbers grains etc via lazyLoader
+    # this resets the masterminion back to known state
+    __salt__['salt.cmd']('sys.reload_modules')
+
     return compiled_pillar
