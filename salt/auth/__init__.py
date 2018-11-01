@@ -253,7 +253,7 @@ class LoadAuth(object):
 
     def list_tokens(self):
         '''
-        List all tokens in eauth_tokn storage.
+        List all tokens in eauth_token storage.
         '''
         return self.tokens["{0}.list_tokens".format(self.opts['eauth_tokens'])](self.opts)
 
@@ -750,6 +750,15 @@ class Resolver(object):
         load['cmd'] = 'get_token'
         tdata = self._send_token_request(load)
         return tdata
+
+    def rm_token(self, token):
+        '''
+        Delete a token from the master
+        '''
+        load = {}
+        load['token'] = token
+        load['cmd'] = 'rm_token'
+        self._send_token_request(load)
 
 
 class AuthUser(object):
