@@ -67,13 +67,17 @@ class Cache(object):
     Key name is a string identifier of a data container (like a file inside a
     directory) which will hold the data.
     '''
-    def __init__(self, opts, cachedir=None, **kwargs):
+    def __init__(self, opts, cachedir=None, driver=None, **kwargs):
         self.opts = opts
         if cachedir is None:
             self.cachedir = opts.get('cachedir', salt.syspaths.CACHE_DIR)
         else:
             self.cachedir = cachedir
-        self.driver = opts.get('cache', salt.config.DEFAULT_MASTER_OPTS['cache'])
+
+        if driver is None:
+            self.driver = opts.get('cache', salt.config.DEFAULT_MASTER_OPTS['cache'])
+        else:
+            self.driver = driver
         self.serial = Serial(opts)
         self._modules = None
         self._kwargs = kwargs
