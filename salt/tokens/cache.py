@@ -1,8 +1,32 @@
 # -*- coding: utf-8 -*-
 '''
+Provide token storage using the salt.cache interface
 
+The token data is pretty simple and can be stored using any key value pair system.
+Therefore, we can leverage the known salt.cache backends to store that data instead
+of having to continuously write new salt.token backends that use similar backend data stores and
+configurations.
+
+To use the salt.token.cache interface, set `eauth_token: cache` in the master config. Specify
+the cache backend by updating `eauth_cache_driver`. The example below uses the salt.cache.pg_cache
+interface.
+
+.. code-block:: yaml
+
+    eauth_tokens: cache
+    eauth_cache_driver: pg_cache
+
+If the cache backend needs extra configurations, set them as you would normally for the 
+targeted salt.cache interface:
+
+.. code-block:: yaml
+
+    cache.postgres.host: localhost
+    cache.postgres.port: 5432
+    cache.postgres.user: 'salt'
+    cache.postgres.passwd: 'salt'
+    cache.postgres.db: 'salt'
 '''
-
 from __future__ import absolute_import, print_function, unicode_literals
 
 import os
