@@ -2,13 +2,36 @@
 '''
 Cache plugin for PostgreSQL database.
 
-.. versionadded:: develop
+Usage:
 
-only >= 9.5
+To use the `pg_cache` cache interface:
 
-pip install psycopg2-binary
+.. code-block:: yaml
 
-Use the following PG database schema:
+    cache: pg_cache
+
+Available configurations for `pg_cache` cache interface:
+
+.. code-block:: yaml
+
+    cache.postgres.host: 127.0.0.1
+    cache.postgres.port: 5432
+    cache.postgres.user: 'salt'
+    cache.postgres.passwd: 'salt'
+    cache.postgres.db: 'salt_cache'
+    mysql.table_name: cache
+
+Dependencies: 
+
+The PostgreSQL server must be 9.5 or later to accommodate proper upserting.
+
+The `psycopg2-binary` library must be installed on the master:
+
+.. code-block:: bash
+
+    pip install psycopg2-binary
+
+The following database schema must be in place before `pg_cache` can function correctly:
 
 .. code-block:: sql
 
@@ -22,22 +45,9 @@ Use the following PG database schema:
         data    jsonb NOT NULL);
 
     CREATE UNIQUE INDEX idx_cache_i ON cache (bank, key);
-    CREATE INDEX idx_cache_bank ON cache(bank);
+    CREATE INDEX idx_cache_bank ON cache (bank);
     CREATE INDEX idx_cache_key ON cache (key);
-
-.. code-block:: yaml
-
-    cache.postgres.host: 127.0.0.1
-    cache.postgres.port: 5432
-    cache.postgres.user: 'salt'
-    cache.postgres.passwd: 'salt'
-    cache.postgres.db: 'salt_cache'
-    mysql.table_name: cache
-
-.. code-block:: yaml
-
-    cache: postgres
-
+    CREATE INDEX idx_cache_data ON cache USING gin(data);
 '''
 from __future__ import absolute_import, print_function, unicode_literals
 
