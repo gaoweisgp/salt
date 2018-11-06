@@ -17,15 +17,7 @@ interface.
     eauth_cache_driver: pg_cache
 
 If the cache backend needs extra configurations, set them as you would normally for the 
-targeted salt.cache interface:
-
-.. code-block:: yaml
-
-    cache.postgres.host: localhost
-    cache.postgres.port: 5432
-    cache.postgres.user: 'salt'
-    cache.postgres.passwd: 'salt'
-    cache.postgres.db: 'salt'
+targeted salt.cache interface.
 '''
 from __future__ import absolute_import, print_function, unicode_literals
 
