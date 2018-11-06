@@ -21,7 +21,7 @@ Available configurations for `pg_cache` cache interface:
     cache.postgres.db: 'salt_cache'
     mysql.table_name: cache
 
-Dependencies: 
+Dependencies:
 
 The PostgreSQL server must be 9.5 or later to accommodate proper upserting.
 
@@ -95,12 +95,12 @@ def _exec_pg(commit=False):
 
     try:
         conn = psycopg2.connect(
-               host= __opts__.get('cache.postgres.host', 'localhost'),
-               port= __opts__.get('cache.postgres.port', 5432),
-               user= __opts__.get('cache.postgres.user', 'salt'),
-               password= __opts__.get('cache.postgres.passwd', 'salt'),
-               database= __opts__.get('cache.postgres.db', 'salt'))
-                
+               host=__opts__.get('cache.postgres.host', 'localhost'),
+               port=__opts__.get('cache.postgres.port', 5432),
+               user=__opts__.get('cache.postgres.user', 'salt'),
+               password=__opts__.get('cache.postgres.passwd', 'salt'),
+               database=__opts__.get('cache.postgres.db', 'salt'))
+
     except psycopg2.OperationalError as exc:
         raise salt.exceptions.SaltMasterError('postgres returner could not connect to database: {exc}'.format(exc=exc))
 
@@ -147,7 +147,7 @@ def fetch(bank, key):
     '''
     Fetch a key value.
     '''
-    fetch_sql = """SELECT data 
+    fetch_sql = """SELECT data
                    FROM cache 
                    WHERE bank=%s AND key=%s"""
 
@@ -179,7 +179,7 @@ def flush(bank, key=None):
         with _exec_pg(commit=True) as cur:
             cur.execute(del_sql, params)
     except psycopg2.DatabaseError as err:
-        cursor.execute("ROLLBACK")
+        cur.execute("ROLLBACK")
         log.critical(err.args)
     except salt.exceptions.SaltMasterError:
         log.critical('Could not flush cache with postgres cache. PostgreSQL server unavailable.')
@@ -214,13 +214,13 @@ def contains(bank, key):
                 FROM cache
                 WHERE bank=%s
                 AND key=%s"""
-   
+
     log.debug("pg_cache check if %s in %s", key, bank)
     try:
         with _exec_pg() as cur:
-            cur.execute(in_sql, (bank,key))
+            cur.execute(in_sql, (bank, key))
             data = cur.fetchone()
-            if (len(data) > 0) and data[0] == 1:
+            if data and data[0] == 1:
                 return True
             return False
     except salt.exceptions.SaltMasterError:

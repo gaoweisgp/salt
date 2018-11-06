@@ -16,7 +16,7 @@ interface.
     eauth_tokens: cache
     eauth_cache_driver: pg_cache
 
-If the cache backend needs extra configurations, set them as you would normally for the 
+If the cache backend needs extra configurations, set them as you would normally for the
 targeted salt.cache interface.
 '''
 from __future__ import absolute_import, print_function, unicode_literals
@@ -33,9 +33,10 @@ log = logging.getLogger(__name__)
 
 __virtualname__ = 'cache'
 
+
 def mk_token(opts, tdata):
     '''
-    Mint a new token using the config option hash_type and store tdata with 
+    Mint a new token using the config option hash_type and store tdata with
     'token' attribute set to the token.
 
     This module uses the hash of random 512 bytes as a token.
@@ -51,7 +52,7 @@ def mk_token(opts, tdata):
     hash_type = getattr(hashlib, opts.get('hash_type', 'md5'))
     new_token = six.text_type(hash_type(os.urandom(512)).hexdigest())
     tdata['token'] = new_token
-   
+
     driver = opts.get('eauth_cache_driver', 'localfs')
     log.debug("mk_token using %s storing %s", driver, new_token)
     try:
@@ -65,6 +66,7 @@ def mk_token(opts, tdata):
         return None
 
     return tdata
+
 
 def get_token(opts, token):
     '''
@@ -88,6 +90,7 @@ def get_token(opts, token):
     log.debug("get_token using %s returned %s", driver, token)
     return token
 
+
 def rm_token(opts, token):
     '''
     Remove token from the store.
@@ -96,7 +99,7 @@ def rm_token(opts, token):
     :param token: Token to remove
     '''
     driver = opts.get('eauth_cache_driver', 'localfs')
-    log.debug("rm_token flushing using %s token %s",driver, token)
+    log.debug("rm_token flushing using %s token %s", driver, token)
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.flush('tokens', token)
@@ -106,6 +109,7 @@ def rm_token(opts, token):
             token, driver, err
         )
         return None
+
 
 def list_tokens(opts):
     '''
