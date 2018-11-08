@@ -53,7 +53,7 @@ def mk_token(opts, tdata):
     new_token = six.text_type(hash_type(os.urandom(512)).hexdigest())
     tdata['token'] = new_token
 
-    driver = opts.get('eauth_cache_driver', 'localfs')
+    driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     log.debug("mk_token using %s storing %s", driver, new_token)
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
@@ -76,7 +76,7 @@ def get_token(opts, token):
     :param token: Token value
     :returns: Token data if successful. Empty dict if failed.
     '''
-    driver = opts.get('eauth_cache_driver', 'localfs')
+    driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         token = cache.fetch('tokens', token)
@@ -98,7 +98,7 @@ def rm_token(opts, token):
     :param opts: Salt master config options
     :param token: Token to remove
     '''
-    driver = opts.get('eauth_cache_driver', 'localfs')
+    driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     log.debug("rm_token flushing using %s token %s", driver, token)
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
@@ -118,7 +118,7 @@ def list_tokens(opts):
     :param opts: Salt master config options
     :returns: List of dicts (token_data)
     '''
-    driver = opts.get('eauth_cache_driver', 'localfs')
+    driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         tokens = cache.list('tokens')
