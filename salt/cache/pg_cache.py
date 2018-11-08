@@ -96,7 +96,7 @@ def _exec_pg(commit=False):
     try:
         conn = psycopg2.connect(
                host=__opts__.get('cache.postgres.host', 'localhost'),
-               port=__opts__.get('cache.postgres.port', 5432),
+               port=port,
                user=__opts__.get('cache.postgres.user', 'salt'),
                password=__opts__.get('cache.postgres.passwd', 'salt'),
                database=__opts__.get('cache.postgres.db', 'salt'))
@@ -178,9 +178,6 @@ def flush(bank, key=None):
     try:
         with _exec_pg(commit=True) as cur:
             cur.execute(del_sql, params)
-    except psycopg2.DatabaseError as err:
-        cur.execute("ROLLBACK")
-        log.critical(err.args)
     except salt.exceptions.SaltMasterError:
         log.critical('Could not flush cache with postgres cache. PostgreSQL server unavailable.')
 
