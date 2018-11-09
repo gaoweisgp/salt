@@ -19,7 +19,6 @@ Available configurations for `pg_cache` cache interface:
     cache.postgres.user: 'salt'
     cache.postgres.passwd: 'salt'
     cache.postgres.db: 'salt_cache'
-    mysql.table_name: cache
 
 Dependencies:
 
@@ -36,10 +35,10 @@ The following database schema must be in place before `pg_cache` can function co
 .. code-block:: sql
 
     CREATE DATABASE  salt
-      WITH ENCODING 'utf-8';
+    WITH ENCODING 'utf-8';
 
     DROP TABLE IF EXISTS cache;
-    CREATE TABLE IF NOT EXISTS cache (
+    CREATE TABLE cache (
         bank    varchar(255) NOT NULL,
         key     varchar(255) NOT NULL,
         data    jsonb NOT NULL);
