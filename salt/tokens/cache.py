@@ -26,6 +26,7 @@ import logging
 import hashlib
 
 import salt.cache
+import salt.exceptions
 
 from salt.ext import six
 
@@ -58,7 +59,7 @@ def mk_token(opts, tdata):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.store('tokens', new_token, tdata)
-    except Exception as err:
+    except salt.exceptions.SaltMasterError as err:
         log.warning(
             'Cannot mk_token from cache using %s: %s',
             driver, err
@@ -80,7 +81,7 @@ def get_token(opts, token):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         token = cache.fetch('tokens', token)
-    except Exception as err:
+    except salt.exceptions.SaltMasterError as err: 
         log.warning(
             'Cannot get token %s from cache using %s: %s',
             token, driver, err
@@ -103,7 +104,7 @@ def rm_token(opts, token):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.flush('tokens', token)
-    except Exception as err:
+    except salt.exceptions.SaltMasterError as err: 
         log.warning(
             'Cannot rm token %s from cache using %s: %s',
             token, driver, err
@@ -122,7 +123,7 @@ def list_tokens(opts):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         tokens = cache.list('tokens')
-    except Exception as err:
+    except salt.exceptions.SaltMasterError as err: 
         log.warning(
             'Cannot list tokens from cache using %s: %s',
             driver, err
