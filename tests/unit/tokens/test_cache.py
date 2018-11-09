@@ -46,5 +46,5 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     @patch("salt.cache.Cache")
     def test_mk_token_none(self, mock_cache):
         inst = mock_cache.return_value
-        inst.store.side_effect = MagicMock(side_effect=Exception)
+        inst.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
         self.assertEqual(cache.mk_token({}, {}), None)
