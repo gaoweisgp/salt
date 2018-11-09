@@ -79,7 +79,11 @@ def __virtual__():
     return __virtualname__
 
 
+# pylint: disable=unused-argument
 def init_kwargs(kwargs):
+    '''
+    Dumby init kwargs
+    '''
     return {}
 
 
@@ -135,9 +139,7 @@ def store(bank, key, data):
     log.debug("pg_cache storing %s:%s:%s", bank, key, data)
     try:
         with _exec_pg(commit=True) as cur:
-            cur.execute(store_sql,
-                        (bank, key, psycopg2.extras.Json(data))
-            )
+            cur.execute(store_sql, (bank, key, psycopg2.extras.Json(data)))
     except salt.exceptions.SaltMasterError:
         log.critical('Could not store cache with postgres cache. PostgreSQL server unavailable.')
 
