@@ -18,7 +18,7 @@ Available configurations for `pg_cache` cache interface:
     cache.postgres.port: 5432
     cache.postgres.user: 'salt'
     cache.postgres.passwd: 'salt'
-    cache.postgres.db: 'salt_cache'
+    cache.postgres.db: 'salt'
 
 Dependencies:
 
@@ -75,7 +75,7 @@ def __virtual__():
     Confirm that a psycopg2 client is installed.
     '''
     if not HAS_POSTGRES:
-        return (False, 'Could not import postgres returner; psycopg2 is not installed.')
+        return (False, 'Could not import postgres cache; psycopg2 is not installed.')
     return __virtualname__
 
 
@@ -105,7 +105,7 @@ def _exec_pg(commit=False):
                database=__opts__.get('cache.postgres.db', 'salt'))
 
     except psycopg2.OperationalError as exc:
-        raise salt.exceptions.SaltMasterError('postgres returner could not connect to database: {exc}'.format(exc=exc))
+        raise salt.exceptions.SaltMasterError('pg cache could not connect to database: {exc}'.format(exc=exc))
 
     cursor = conn.cursor()
 
@@ -141,7 +141,8 @@ def store(bank, key, data):
         with _exec_pg(commit=True) as cur:
             cur.execute(store_sql, (bank, key, psycopg2.extras.Json(data)))
     except salt.exceptions.SaltMasterError:
-        log.critical('Could not store cache with postgres cache. PostgreSQL server unavailable.')
+        log.error('Could not store cache with postgres cache. PostgreSQL server unavailable.')
+        raise
 
 
 def fetch(bank, key):
@@ -160,7 +161,8 @@ def fetch(bank, key):
                 return data[0]
             return {}
     except salt.exceptions.SaltMasterError:
-        log.critical('Could not fetch cache with postgres cache. PostgreSQL server unavailable.')
+        log.error('Could not fetch cache with postgres cache. PostgreSQL server unavailable.')
+        raise
 
 
 def flush(bank, key=None):
@@ -180,7 +182,8 @@ def flush(bank, key=None):
         with _exec_pg(commit=True) as cur:
             cur.execute(del_sql, params)
     except salt.exceptions.SaltMasterError:
-        log.critical('Could not flush cache with postgres cache. PostgreSQL server unavailable.')
+        log.error('Could not flush cache with postgres cache. PostgreSQL server unavailable.')
+        raise
 
 
 def list_(bank):
@@ -201,7 +204,8 @@ def list_(bank):
                 return data
             return {}
     except salt.exceptions.SaltMasterError:
-        log.critical('Could not list cache with postgres cache. PostgreSQL server unavailable.')
+        log.error('Could not list cache with postgres cache. PostgreSQL server unavailable.')
+        raise
 
 
 def contains(bank, key):
@@ -222,4 +226,5 @@ def contains(bank, key):
                 return True
             return False
     except salt.exceptions.SaltMasterError:
-        log.critical('Could not run contains with postgres cache. PostgreSQL server unavailable.')
+        log.error('Could not run contains with postgres cache. PostgreSQL server unavailable.')
+        raise

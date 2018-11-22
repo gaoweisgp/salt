@@ -60,8 +60,8 @@ def mk_token(opts, tdata):
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.store('tokens', new_token, tdata)
     except salt.exceptions.SaltMasterError as err:
-        log.warning(
-            'Cannot mk_token from cache using %s: %s',
+        log.error(
+            'Cannot mk_token from tokens cache using %s: %s',
             driver, err
         )
         return None
@@ -82,8 +82,8 @@ def get_token(opts, token):
         cache = salt.cache.Cache(__opts__, driver=driver)
         token = cache.fetch('tokens', token)
     except salt.exceptions.SaltMasterError as err:
-        log.warning(
-            'Cannot get token %s from cache using %s: %s',
+        log.error(
+            'Cannot get token %s from tokens cache using %s: %s',
             token, driver, err
         )
         return None
@@ -105,8 +105,8 @@ def rm_token(opts, token):
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.flush('tokens', token)
     except salt.exceptions.SaltMasterError as err:
-        log.warning(
-            'Cannot rm token %s from cache using %s: %s',
+        log.error(
+            'Cannot rm token %s from tokens cache using %s: %s',
             token, driver, err
         )
         return None
@@ -124,8 +124,8 @@ def list_tokens(opts):
         cache = salt.cache.Cache(__opts__, driver=driver)
         tokens = cache.list('tokens')
     except salt.exceptions.SaltMasterError as err:
-        log.warning(
-            'Cannot list tokens from cache using %s: %s',
+        log.error(
+            'Cannot list tokens from tokens cache using %s: %s',
             driver, err
         )
         return []
