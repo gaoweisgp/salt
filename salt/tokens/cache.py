@@ -64,7 +64,7 @@ def mk_token(opts, tdata):
             'Cannot mk_token from tokens cache using %s: %s',
             driver, err
         )
-        return None
+        return {}
 
     return tdata
 
@@ -86,7 +86,7 @@ def get_token(opts, token):
             'Cannot get token %s from tokens cache using %s: %s',
             token, driver, err
         )
-        return None
+        return {}
 
     log.debug("get_token using %s returned %s", driver, token)
     return token
@@ -109,7 +109,7 @@ def rm_token(opts, token):
             'Cannot rm token %s from tokens cache using %s: %s',
             token, driver, err
         )
-        return None
+    return {}
 
 
 def list_tokens(opts):
