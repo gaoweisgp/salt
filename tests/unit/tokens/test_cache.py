@@ -40,14 +40,14 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     def test_mk_token(self, mock_cache):
         mocked = mock_cache.return_value
         mocked.store.return_value = None 
-        res = cache.mk_token({}, {})
+        res = cache.mk_token({}, {'test': 'test'})
         self.assertTrue('token' in res)
 
     @patch("salt.cache.Cache")
     def test_mk_token_raise(self, mock_cache):
         mocked = mock_cache.return_value
         mocked.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
-        self.assertEqual(cache.mk_token({}, {}), {})
+        self.assertEqual(cache.mk_token({}, {'test': 'tests'}), {})
 
     @patch("salt.cache.Cache")
     def test_rm_token(self, mock_cache):
