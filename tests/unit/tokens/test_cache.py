@@ -33,18 +33,57 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
         return {
             cache: {
                 '__opts__': { }
-            } 
+            }
         }
 
     @patch("salt.cache.Cache")
     def test_mk_token(self, mock_cache):
-        inst = mock_cache.return_value
-        inst.store.return_value = None 
+        mocked = mock_cache.return_value
+        mocked.store.return_value = None 
         res = cache.mk_token({}, {})
         self.assertTrue('token' in res)
 
     @patch("salt.cache.Cache")
-    def test_mk_token_none(self, mock_cache):
-        inst = mock_cache.return_value
-        inst.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
-        self.assertEqual(cache.mk_token({}, {}), None)
+    def test_mk_token_raise(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        self.assertEqual(cache.mk_token({}, {}), {})
+
+    @patch("salt.cache.Cache")
+    def test_rm_token(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.flush.return_value = {}
+        self.assertEqual(cache.rm_token({},'tacos'), {})
+
+    @patch("salt.cache.Cache")
+    def test_rm_token_raise(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.flush.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        self.assertEqual(cache.rm_token({}, 'tacos'), {})
+
+    @patch("salt.cache.Cache")
+    def test_get_token(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.fetch.return_value = 'are good'
+        self.assertEqual(cache.get_token({},'tacos'), 'are good')
+
+    @patch("salt.cache.Cache")
+    def test_get_token_raise(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.fetch.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        self.assertEqual(cache.get_token({}, 'tacos'), {})
+
+    @patch("salt.cache.Cache")
+    def test_list_tokens(self, mock_cache):
+        expect = ['tacos', 'are', 'good']
+        mocked = mock_cache.return_value
+        mocked.list.return_value = expect
+        self.assertEqual(cache.list_tokens({}), expect)
+
+    @patch("salt.cache.Cache")
+    def test_list_tokens_raise(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.list.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        self.assertEqual(cache.list_tokens({}), [])
+
+
