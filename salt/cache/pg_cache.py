@@ -140,8 +140,8 @@ def store(bank, key, data):
     try:
         with _exec_pg(commit=True) as cur:
             cur.execute(store_sql, (bank, key, psycopg2.extras.Json(data)))
-    except salt.exceptions.SaltMasterError:
-        log.error('Could not store cache with postgres cache. PostgreSQL server unavailable.')
+    except salt.exceptions.SaltMasterError as err:
+        log.error('Could not store cache with postgres cache. PostgreSQL server unavailable: %s', err)
         raise
 
 
