@@ -12,6 +12,7 @@ import time
 
 # Import Salt libs
 import salt.config
+import salt.exceptions
 from salt.ext import six
 from salt.payload import Serial
 from salt.utils.odict import OrderedDict
@@ -272,6 +273,27 @@ class Cache(object):
         '''
         fun = '{0}.contains'.format(self.driver)
         return self.modules[fun](bank, key, **self._kwargs)
+
+    def clean_expired(self, bank):
+        '''
+        Clean expired keys
+
+        NOTE:
+            Only if the cache module has the `clean_expired()` func available can
+            we call it
+
+        :param bank:
+            The name of the location inside the cache which will hold the key
+            and its associated data.
+
+        :raises SaltCacheError:
+            Raises an exception if `clean_expire()` is not available for the cache driver. 
+        '''
+        fun = '{0}.clean_expired'.format(self.driver)
+        if fun in self.modules:
+            self.modules[fun](bank)
+        else:
+            raise salt.exceptions.SaltCacheError
 
 
 class MemCache(Cache):

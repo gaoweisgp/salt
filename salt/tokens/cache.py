@@ -24,6 +24,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import os
 import logging
 import hashlib
+import time
 
 import salt.cache
 import salt.exceptions
@@ -132,3 +133,30 @@ def list_tokens(opts):
 
     log.debug("list_tokens using %s returned %s", driver, tokens)
     return tokens
+
+def clean_expired_tokens(opts):
+    '''
+    Clean expired tokens
+
+    If the cache driver has clean_expired(), use it. If not iterate
+    over the tokens and remove them.
+
+    :param opts: 
+        Salt master config options
+    '''
+    log.debug("salt.token.cache expiring tokens ... ")
+    driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
+    try:
+        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache.clean_expired('tokens')
+    except salt.exceptions.SaltCacheError:
+        for token in list_tokens(opts):
+            token_data = get_token(opts, token)
+            if 'expire' not in token_data or token_data.get('expire', 0) < time.time():
+                rm_token(opts, token)
+    except salt.exceptions.SaltMasterError as err:
+        log.error(
+            'Cannot clean expired tokens using %s: %s',
+            driver, err
+        )
+        raise 

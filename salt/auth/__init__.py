@@ -263,6 +263,23 @@ class LoadAuth(object):
         '''
         self.tokens["{0}.rm_token".format(self.opts['eauth_tokens'])](self.opts, tok)
 
+    def clean_expired_tokens(self):
+        '''
+        Clean expired tokens
+
+        If the eauth token driver has `clean_expired_tokens()`, use it. If not just iterate
+        over the list of tokens.
+        '''
+        log.debug("Cleaning out expired keys ... ")
+        clean_expired_fun = "{}.clean_expired_tokens".format(self.opts['eauth_tokens'])
+        if clean_expired_fun in self.tokens:
+            self.tokens[clean_expired_fun](self.opts)
+        else:
+            for token in self.list_tokens():
+                token_data = self.get_tok(token)
+                if 'expire' not in token_data or token_data.get('expire', 0) < time.time():
+                    self.rm_token(token)
+
     def authenticate_token(self, load):
         '''
         Authenticate a user by the token specified in load.
