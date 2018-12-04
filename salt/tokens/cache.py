@@ -24,7 +24,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 import os
 import logging
 import hashlib
-import time
 
 import salt.cache
 import salt.exceptions
