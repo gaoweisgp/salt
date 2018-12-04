@@ -86,4 +86,9 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
         mocked.list.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
         self.assertEqual(cache.list_tokens({}), [])
 
-
+    @patch("salt.cache.Cache")
+    def test_clean_expired_raise_saltmastererror(self, mock_cache):
+        mocked = mock_cache.return_value
+        mocked.clean_expired.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        with self.assertRaises(salt.exceptions.SaltMasterError):
+            cache.clean_expired_tokens({})

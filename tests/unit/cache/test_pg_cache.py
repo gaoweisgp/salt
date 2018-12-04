@@ -114,6 +114,12 @@ class PgCacheTestCase(TestCase, LoaderModuleMockMixin):
                 with self.assertRaises(SaltMasterError):
                     pg_cache.contains('surfs', 'up')
 
+    def test_clean_expires_raise(self):
+        with patch('psycopg2.connect', MagicMock(side_effect=psycopg2.OperationalError)):
+            with patch('salt.cache.pg_cache._exec_pg', MagicMock(side_effect=SaltMasterError)):
+                with self.assertRaises(SaltMasterError):
+                    pg_cache.clean_expired('gnarly')
+
     @patch('psycopg2.connect')
     def test_exec_pg_raise_op_error(self, mock_connect):
         mock_connect.side_effect = MagicMock(side_effect=psycopg2.OperationalError)
