@@ -134,6 +134,7 @@ def list_tokens(opts):
     log.debug("list_tokens using %s returned %s", driver, tokens)
     return tokens
 
+
 def clean_expired_tokens(opts):
     '''
     Clean expired tokens
@@ -141,7 +142,7 @@ def clean_expired_tokens(opts):
     If the cache driver has clean_expired(), use it. If not iterate
     over the tokens and remove them.
 
-    :param opts: 
+    :param opts:
         Salt master config options
     '''
     log.debug("salt.token.cache expiring tokens ... ")
@@ -159,4 +160,4 @@ def clean_expired_tokens(opts):
             'Cannot clean expired tokens using %s: %s',
             driver, err
         )
-        raise 
+        raise

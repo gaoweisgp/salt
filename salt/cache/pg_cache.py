@@ -258,10 +258,11 @@ def contains(bank, key):
         log.error('Could not run contains with postgres cache. PostgreSQL server unavailable.')
         raise
 
+
 def clean_expired(bank):
     '''
-    Delete keys from a bank that has expired keys if the 
-    'expires_at' column is not null. 
+    Delete keys from a bank that has expired keys if the
+    'expires_at' column is not null.
     '''
     expire_sql = """DELETE FROM cache
                     WHERE bank = %s
@@ -275,5 +276,3 @@ def clean_expired(bank):
     except salt.exceptions.SaltMasterError as err:
         log.error('Could not clean up expired tokens with postgres cache: %s', err)
         raise
-
-
