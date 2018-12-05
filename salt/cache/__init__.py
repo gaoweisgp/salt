@@ -289,11 +289,14 @@ class Cache(object):
         :raises SaltCacheError:
             Raises an exception if `clean_expire()` is not available for the cache driver. 
         '''
-        fun = '{0}.clean_expired'.format(self.driver)
-        if fun in self.modules:
-            self.modules[fun](bank)
-        else:
-            raise salt.exceptions.SaltCacheError
+        list_ = '{}.list'.format(self.driver)
+        updated = '{}.updated'.format(self.driver)
+        flush = '{}.flush'.format(self.driver)
+        for key in self.modules[list_](bank, **self._kwargs):
+            ts = self.modules[updated](bank, key, **self._kwargs) 
+            if ts is not None:
+                if ts <= time.time():
+                    self.modules[flush](bank, key, **self._kwargs)
 
 
 class MemCache(Cache):
