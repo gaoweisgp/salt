@@ -59,7 +59,7 @@ def mk_token(opts, tdata):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.store('tokens', new_token, tdata)
-    except salt.exceptions.SaltMasterError as err:
+    except salt.exceptions.SaltCacheError as err:
         log.error(
             'Cannot mk_token from tokens cache using %s: %s',
             driver, err
@@ -81,7 +81,7 @@ def get_token(opts, token):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         token = cache.fetch('tokens', token)
-    except salt.exceptions.SaltMasterError as err:
+    except salt.exceptions.SaltCacheError as err:
         log.error(
             'Cannot get token %s from tokens cache using %s: %s',
             token, driver, err
@@ -104,7 +104,7 @@ def rm_token(opts, token):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.flush('tokens', token)
-    except salt.exceptions.SaltMasterError as err:
+    except salt.exceptions.SaltCacheError as err:
         log.error(
             'Cannot rm token %s from tokens cache using %s: %s',
             token, driver, err
@@ -123,7 +123,7 @@ def list_tokens(opts):
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         tokens = cache.list('tokens')
-    except salt.exceptions.SaltMasterError as err:
+    except salt.exceptions.SaltCacheError as err:
         log.error(
             'Cannot list tokens from tokens cache using %s: %s',
             driver, err
@@ -138,25 +138,15 @@ def clean_expired_tokens(opts):
     '''
     Clean expired tokens
 
-    If the cache driver has clean_expired(), use it. If not iterate
-    over the tokens and remove them.
-
     :param opts:
         Salt master config options
     '''
-    log.debug("salt.token.cache expiring tokens ... ")
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
         cache = salt.cache.Cache(__opts__, driver=driver)
         cache.clean_expired('tokens')
-    except salt.exceptions.SaltCacheError:
-        for token in list_tokens(opts):
-            token_data = get_token(opts, token)
-            if 'expire' not in token_data or token_data.get('expire', 0) < time.time():
-                rm_token(opts, token)
-    except salt.exceptions.SaltMasterError as err:
+    except salt.exceptions.SaltCacheError as err:
         log.error(
             'Cannot clean expired tokens using %s: %s',
             driver, err
         )
-        raise
