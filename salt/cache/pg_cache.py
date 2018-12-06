@@ -56,6 +56,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 from contextlib import contextmanager
 import datetime
+import time
 
 import salt.exceptions
 import salt.serializers.json
@@ -71,7 +72,6 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 __virtualname__ = 'pg_cache'
-__func_alias__ = {'list_': 'list'}
 
 
 def __virtual__():
@@ -167,8 +167,8 @@ def store(bank, key, data, expires=None):
         with _exec_pg(commit=True) as cur:
             cur.execute(store_sql, params)
     except salt.exceptions.SaltMasterError as err:
-        log.error('Could not store cache with postgres cache: %s', err)
-        raise
+        raise salt.exceptions.SaltCacheError(
+            'Could not store cache with postgres cache: {}'.format(err))
 
 
 def fetch(bank, key):
@@ -178,7 +178,6 @@ def fetch(bank, key):
     fetch_sql = """SELECT data
                    FROM cache 
                    WHERE bank=%s AND key=%s"""
-
     try:
         with _exec_pg() as cur:
             cur.execute(fetch_sql, (bank, key))
@@ -187,8 +186,8 @@ def fetch(bank, key):
                 return data[0]
             return {}
     except salt.exceptions.SaltMasterError as err:
-        log.error('Could not fetch cache with postgres cache: %s', err)
-        raise
+        raise salt.exceptions.SaltCacheError(
+            'Could not fetch cache with postgres cache: {}'.format(err))
 
 
 def flush(bank, key=None):
@@ -207,12 +206,12 @@ def flush(bank, key=None):
     try:
         with _exec_pg(commit=True) as cur:
             cur.execute(del_sql, params)
-    except salt.exceptions.SaltMasterError:
-        log.error('Could not flush cache with postgres cache. PostgreSQL server unavailable.')
-        raise
+    except salt.exceptions.SaltMasterError as err:
+        raise salt.exceptions.SaltCacheError(
+            'Could not flush cache with postgres cache: {}'.format(err))
 
 
-def list_(bank):
+def list(bank):
     '''
     Return an iterable object containing all entries stored in the specified
     bank.
@@ -226,12 +225,13 @@ def list_(bank):
         with _exec_pg() as cur:
             cur.execute(ls_sql, (bank,))
             data = cur.fetchall()
+            log.debug(data)
             if data:
                 return data
             return {}
-    except salt.exceptions.SaltMasterError:
-        log.error('Could not list cache with postgres cache. PostgreSQL server unavailable.')
-        raise
+    except salt.exceptions.SaltMasterError as err:
+        raise salt.exceptions.SaltCacheError(
+            'Could not list cache with postgres cache: {}'.format(err))
 
 
 def contains(bank, key):
@@ -242,7 +242,6 @@ def contains(bank, key):
                 FROM cache
                 WHERE bank=%s
                 AND key=%s"""
-
     log.debug("pg_cache check if %s in %s", key, bank)
     try:
         with _exec_pg() as cur:
@@ -254,9 +253,30 @@ def contains(bank, key):
                 log.error("Found multiple values for key %s in bank %s", key, bank)
                 return False
             return False
-    except salt.exceptions.SaltMasterError:
-        log.error('Could not run contains with postgres cache. PostgreSQL server unavailable.')
-        raise
+    except salt.exceptions.SaltMasterError as err:
+        raise salt.exceptions.SaltCacheError(
+            'Could not run contains with postgres cache: {}'.format(err))
+
+
+def updated(bank, key):
+    '''
+    Given a bank and key, return the epoch of the expires_at if set.
+    '''
+    updated_sql = """SELECT expires_at
+                     FROM cache
+                     WHERE bank = %s
+                     AND key = %s"""
+    log.debug("pg_cache returning epoh key %s at %s", key, bank)
+    try:
+        with _exec_pg(commit=True) as cur:
+            cur.execute(updated_sql, (bank, key))
+            data = cur.fetchone()
+            if data and isinstance(data[0], datetime.date):
+                return time.mktime(data[0].timetuple())
+            return None
+    except salt.exceptions.SaltMasterError as err:
+        raise salt.exceptions.SaltCacheError(
+            'Could not run updated with postgres cache: {}'.format(err))
 
 
 def clean_expired(bank):
@@ -274,5 +294,5 @@ def clean_expired(bank):
         with _exec_pg(commit=True) as cur:
             cur.execute(expire_sql, (bank,))
     except salt.exceptions.SaltMasterError as err:
-        log.error('Could not clean up expired tokens with postgres cache: %s', err)
-        raise
+        raise salt.exceptions.SaltCacheError(
+            'Could not clean up expired tokens with postgres cache: {}'.format(err))
