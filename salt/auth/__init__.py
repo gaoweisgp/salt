@@ -266,11 +266,11 @@ class LoadAuth(object):
     def clean_expired_tokens(self):
         '''
         Clean expired tokens
-
-        If the eauth token driver has `clean_expired_tokens()`, use it. If not just iterate
-        over the list of tokens.
         '''
-        log.debug("Cleaning out expired keys ... ")
+        log.debug("cleaning expired tokens using token driver: {}".format(self.opts['eauth_tokens']))
+
+        # If the token driver has a clean_expired_tokens() func, call it to clean up 
+        # expired tokens.
         clean_expired_fun = "{}.clean_expired_tokens".format(self.opts['eauth_tokens'])
         if clean_expired_fun in self.tokens:
             self.tokens[clean_expired_fun](self.opts)
