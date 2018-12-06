@@ -278,24 +278,26 @@ class Cache(object):
         '''
         Clean expired keys
 
-        NOTE:
-            Only if the cache module has the `clean_expired()` func available can
-            we call it
-
         :param bank:
             The name of the location inside the cache which will hold the key
             and its associated data.
 
         :raises SaltCacheError:
-            Raises an exception if `clean_expire()` is not available for the cache driver. 
+            Raises an exception if cache driver detected an error accessing data
+            in the cache backend (auth, permissions, etc).
         '''
-        list_ = '{}.list'.format(self.driver)
-        updated = '{}.updated'.format(self.driver)
-        flush = '{}.flush'.format(self.driver)
-        for key in self.modules[list_](bank, **self._kwargs):
-            ts = self.modules[updated](bank, key, **self._kwargs) 
-            if ts is not None:
-                if ts <= time.time():
+        # If the cache driver has a clean_expired() func, call it to clean up
+        # expired keys.
+        clean_expired = '{0}.clean_expired'.format(self.driver)
+        if clean_expired in self.modules:
+            self.modules[clean_expired](bank)
+        else:
+            list_ = '{}.list'.format(self.driver)
+            updated = '{}.updated'.format(self.driver)
+            flush = '{}.flush'.format(self.driver)
+            for key in self.modules[list_](bank, **self._kwargs):
+                ts = self.modules[updated](bank, key, **self._kwargs)
+                if ts is not None and ts <= time.time():
                     self.modules[flush](bank, key, **self._kwargs)
 
 
