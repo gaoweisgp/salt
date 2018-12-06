@@ -57,7 +57,7 @@ def mk_token(opts, tdata):
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     log.debug("mk_token using %s storing %s", driver, new_token)
     try:
-        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache = salt.cache.Cache(opts, driver=driver)
         cache.store('tokens', new_token, tdata)
     except salt.exceptions.SaltCacheError as err:
         log.error(
@@ -79,7 +79,7 @@ def get_token(opts, token):
     '''
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
-        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache = salt.cache.Cache(opts, driver=driver)
         token = cache.fetch('tokens', token)
     except salt.exceptions.SaltCacheError as err:
         log.error(
@@ -102,7 +102,7 @@ def rm_token(opts, token):
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     log.debug("rm_token flushing using %s token %s", driver, token)
     try:
-        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache = salt.cache.Cache(opts, driver=driver)
         cache.flush('tokens', token)
     except salt.exceptions.SaltCacheError as err:
         log.error(
@@ -121,7 +121,7 @@ def list_tokens(opts):
     '''
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
-        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache = salt.cache.Cache(opts, driver=driver)
         tokens = cache.list('tokens')
     except salt.exceptions.SaltCacheError as err:
         log.error(
@@ -143,7 +143,7 @@ def clean_expired_tokens(opts):
     '''
     driver = opts.get('eauth_cache_driver', __opts__.get('eauth_cache_driver'))
     try:
-        cache = salt.cache.Cache(__opts__, driver=driver)
+        cache = salt.cache.Cache(opts, driver=driver)
         cache.clean_expired('tokens')
     except salt.exceptions.SaltCacheError as err:
         log.error(
