@@ -1653,7 +1653,7 @@ DEFAULT_MASTER_OPTS = {
     'keep_acl_in_token': False,
     'eauth_acl_module': '',
     'eauth_tokens': 'localfs',
-    'eauth_cache_driver': 'localfs',
+    'eauth_cache_driver': '',
     'extension_modules': os.path.join(salt.syspaths.CACHE_DIR, 'master', 'extmods'),
     'module_dirs': [],
     'file_recv': False,
