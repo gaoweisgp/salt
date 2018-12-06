@@ -46,7 +46,7 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     @patch("salt.cache.Cache")
     def test_mk_token_raise(self, mock_cache):
         mocked = mock_cache.return_value
-        mocked.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        mocked.store.side_effect = MagicMock(side_effect=salt.exceptions.SaltCacheError)
         self.assertEqual(cache.mk_token({}, {'test': 'tests'}), {})
 
     @patch("salt.cache.Cache")
@@ -58,7 +58,7 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     @patch("salt.cache.Cache")
     def test_rm_token_raise(self, mock_cache):
         mocked = mock_cache.return_value
-        mocked.flush.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        mocked.flush.side_effect = MagicMock(side_effect=salt.exceptions.SaltCacheError)
         self.assertEqual(cache.rm_token({}, 'tacos'), {})
 
     @patch("salt.cache.Cache")
@@ -70,7 +70,7 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     @patch("salt.cache.Cache")
     def test_get_token_raise(self, mock_cache):
         mocked = mock_cache.return_value
-        mocked.fetch.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        mocked.fetch.side_effect = MagicMock(side_effect=salt.exceptions.SaltCacheError)
         self.assertEqual(cache.get_token({}, 'tacos'), {})
 
     @patch("salt.cache.Cache")
@@ -83,12 +83,11 @@ class CacheTokenTestCase(TestCase, LoaderModuleMockMixin):
     @patch("salt.cache.Cache")
     def test_list_tokens_raise(self, mock_cache):
         mocked = mock_cache.return_value
-        mocked.list.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
+        mocked.list.side_effect = MagicMock(side_effect=salt.exceptions.SaltCacheError)
         self.assertEqual(cache.list_tokens({}), [])
 
     @patch("salt.cache.Cache")
-    def test_clean_expired_raise_saltmastererror(self, mock_cache):
+    def test_clean_expired_raise_saltcacheerror(self, mock_cache):
         mocked = mock_cache.return_value
-        mocked.clean_expired.side_effect = MagicMock(side_effect=salt.exceptions.SaltMasterError)
-        with self.assertRaises(salt.exceptions.SaltMasterError):
-            cache.clean_expired_tokens({})
+        mocked.clean_expired.side_effect = MagicMock(side_effect=salt.exceptions.SaltCacheError)
+        self.assertEqual(cache.clean_expired_tokens({}), None)
