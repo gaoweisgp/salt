@@ -788,6 +788,11 @@ class ZeroMQPubServerChannel(salt.transport.server.PubServerChannel):
         Bind to the interface specified in the configuration file
         '''
         salt.utils.process.appendproctitle(self.__class__.__name__)
+
+        if self.opts['pub_server_niceness'] and not salt.utils.platform.is_windows():
+            log.info('Publish daemon setting nice to %i', self.opts['pub_server_niceness'])
+            os.nice(self.opts['pub_server_niceness'])
+
         if log_queue:
             salt.log.setup.set_multiprocessing_logging_queue(log_queue)
             salt.log.setup.setup_multiprocessing_logging(log_queue)

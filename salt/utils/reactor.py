@@ -10,6 +10,7 @@ import collections
 import fnmatch
 import glob
 import logging
+import os
 import time
 
 # Import salt libs
@@ -253,7 +254,11 @@ class Reactor(salt.utils.process.SignalHandlingMultiprocessingProcess, salt.stat
         '''
         salt.utils.process.appendproctitle(self.__class__.__name__)
 
-        # instantiate some classes inside our new process
+        if self.opts['reactor_niceness'] and not salt.utils.platform.is_windows():
+            log.info('Reactor setting nice to %i', self.opts['reactor_niceness'])
+            os.nice(self.opts['reactor_niceness'])
+
+       # instantiate some classes inside our new process
         self.event = salt.utils.event.get_event(
                 self.opts['__role'],
                 self.opts['sock_dir'],
