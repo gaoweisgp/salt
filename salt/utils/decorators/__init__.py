@@ -17,6 +17,7 @@ from collections import defaultdict
 # Import salt libs
 import salt.utils.args
 import salt.utils.data
+from salt.utils.decorators.acl import Authorize
 from salt.exceptions import CommandExecutionError, SaltConfigurationError
 from salt.log import LOG_LEVELS
 

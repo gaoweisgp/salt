@@ -1630,8 +1630,8 @@ class Minion(MinionBase):
             else:
                 return Minion._thread_return(minion_instance, opts, data)
 
-        with tornado.stack_context.StackContext(functools.partial(RequestContext,
-                                                                  {'data': data, 'opts': opts})):
+        current_context = {'data': data, 'opts': opts, 'auth_check': data.pop('auth_check', None)}
+        with tornado.stack_context.StackContext(functools.partial(RequestContext, current_context)):
             with tornado.stack_context.StackContext(minion_instance.ctx):
                 run_func(minion_instance, opts, data)
 
