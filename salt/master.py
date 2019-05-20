@@ -1090,10 +1090,16 @@ class MWorker(salt.utils.process.SignalHandlingMultiprocessingProcess):
             return False
         if self.opts['master_stats']:
             start = time.time()
-        ret = getattr(self.clear_funcs, cmd)(load), {'fun': 'send_clear'}
-        if self.opts['master_stats']:
-            stats = salt.utils.event.update_stats(self.stats, start, load)
-            self._post_stats(stats)
+
+        with StackContext(functools.partial(RequestContext,
+                                            {'data': load,
+                                             'opts': self.opts})):
+            ret = getattr(self.clear_funcs, cmd)(load), {'fun': 'send_clear'}
+
+            if self.opts['master_stats']:
+                stats = salt.utils.event.update_stats(self.stats, start, load)
+                self._post_stats(stats)
+
         return ret
 
     def _handle_aes(self, data):
@@ -1935,8 +1941,12 @@ class ClearFuncs(object):
 
         # Authorized. Do the job!
         try:
+            # store auth_check for later nested authorizations from this call
+            RequestContext.current['auth_check'] = auth_check
+
             fun = clear_load.pop('fun')
             runner_client = salt.runner.RunnerClient(self.opts)
+
             return runner_client.asynchronous(fun,
                                               clear_load.get('kwarg', {}),
                                               username)
@@ -1990,6 +2000,9 @@ class ClearFuncs(object):
 
         # Authorized. Do the job!
         try:
+            # store auth_check for later nested authorizations from this call
+            RequestContext.current['auth_check'] = auth_check
+
             jid = salt.utils.jid.gen_jid(self.opts)
             fun = clear_load.pop('fun')
             tag = tagify(jid, prefix='wheel')
@@ -2151,6 +2164,11 @@ class ClearFuncs(object):
                         'error': 'Master could not resolve minions for target {0}'.format(clear_load['tgt'])
                     }
                 }
+
+        # store auth_check for later nested authorizations from this call
+        RequestContext.current['auth_check'] = auth_check
+        import pprint; pprint.pprint(clear_load)
+
         if extra.get('batch', None):
             return self.publish_batch(clear_load, extra, minions, missing)
 
@@ -2369,6 +2387,11 @@ class ClearFuncs(object):
                 clear_load['user'], clear_load['fun'], clear_load['jid']
             )
             load['user'] = clear_load['user']
+
+        # if there is an active auth_check in current context, pass it down
+        if 'auth_check' in RequestContext.current:
+            load['auth_check'] = RequestContext.current['auth_check']
+
         else:
             log.info(
                 'Published command %s with jid %s',

@@ -37,6 +37,7 @@ import salt.output
 import salt.utils.text
 
 from salt.ext import six
+from salt.utils.ctx import RequestContext
 
 # Import 3rd-party libs
 import tornado.stack_context
